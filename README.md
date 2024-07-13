@@ -10,7 +10,7 @@
 
 1. Apri il menu principale (icona a forma di testa di toro).
 2. Vai su `apps` --> `charts` e cerca `harbor` nella barra di ricerca.
-![Testo Alternativo]("C:\Users\franc\Downloads\harb1.PNG")
+![Testo Alternativo]("https://drive.google.com/file/d/194z25_aNF7Rbb2dMyMyZGhkcECcRa0JJ/view?usp=sharing")
 
 3. Aggiungi il repository Helm se non è già stato aggiunto con il seguente comando come suggerito da harbor stesso:
    ```sh
