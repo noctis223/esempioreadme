@@ -10,7 +10,9 @@
 
 1. Apri il menu principale (icona a forma di testa di toro).
 2. Vai su `apps` --> `charts` e cerca `harbor` nella barra di ricerca.
-3. Aggiungi il repository Helm se non è già stato aggiunto con il seguente comando:
+![Testo Alternativo]("C:\Users\franc\Downloads\harb1.PNG")
+
+3. Aggiungi il repository Helm se non è già stato aggiunto con il seguente comando come suggerito da harbor stesso:
    ```sh
    helm repo add harbor https://helm.goharbor.io
    helm repo update
@@ -58,4 +60,3 @@
 
 - **Errore di timeout**: Verifica che la configurazione proxy sia stata eliminata nel file YAML di Harbor.
 - **Errore x509**: Controlla la correttezza del file `daemon.json` e assicurati che i certificati siano stati inseriti nella cartella corretta.
-
