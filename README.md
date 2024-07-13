@@ -33,6 +33,7 @@
 2. Vai su `Service Discovery` --> `Ingress`.
 3. Modifica l'ingress di Harbor, premendo i tre puntini accanto a `harbor` e poi `edit YAML`.
 4. Modifica il file sostituendo `core.harbor.domain` con `kube-node-2.kg.kireygroup.com`.
+![Registry da instllare](harb3a.PNG)
 5. In caso di errore di mancata versione, aggiungi il campo `resourceVersion` trovando il numero nel cluster o inserendo un numero simile a quello nell'immagine.
 6. Salva e visualizza il registry premendo sul link vicino alla voce `portal` nel menu degli ingress.
    > **Nota:** Assicurati di utilizzare `https` e non `http` per accedere al registry, altrimenti non riuscirai ad accedere a causa di credenziali errate.
