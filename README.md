@@ -25,7 +25,7 @@
 
 ![Registry da instllare](harb2a.PNG)
 8. Clicca su `installa` per continuare.
-   > **Nota:** Se il pod `harbor-core` non viene avviato, esegui un aggiornamento in caso di fallimento.
+   > **Nota:** Se il pod `harbor-core` non viene avviato, esegui un aggiornamento e quindi ritentare in caso di fallimento.
 
 ## Modifica Ingress
 
