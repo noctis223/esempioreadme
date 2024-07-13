@@ -1,73 +1,61 @@
-# Makefile per l'installazione di Harbor su Kubernetes
+# Guida all'Installazione di Harbor su Kubernetes
 
-# Variabili
-NAMESPACE = default
-HELM_REPO = harbor
-HELM_REPO_URL = https://helm.goharbor.io
-INGRESS_DOMAIN = kube-node-2.kg.kireygroup.com
-DOCKER_CERT_DIR = /etc/docker
-DOCKER_CERT_NAME = hostnamediharbor
+## Prerequisiti
 
-# Prerequisiti
-.PHONY: prerequisites
-prerequisites:
-	@echo "Verifica prerequisiti..."
-	@which rancher || (echo "Errore: Rancher non è installato"; exit 1)
-	@which kubectl || (echo "Errore: kubectl non è installato"; exit 1)
-	@which helm || (echo "Errore: Helm non è installato"; exit 1)
-	@kubectl version --short | grep -q "Server Version: v1.20" || (echo "Errore: Kubernetes cluster deve essere versione 1.20+"; exit 1)
-	@helm version --short | grep -q "v3.2.0" || (echo "Errore: Helm deve essere versione 3.2.0+"; exit 1)
-	@echo "Prerequisiti verificati."
+- Rancher installato
+- Cluster Kubernetes versione 1.20+
+- Helm versione 3.2.0+
 
-# Aggiunta repository Helm
-.PHONY: add-helm-repo
-add-helm-repo:
-	@echo "Aggiunta repository Helm..."
-	helm repo add $(HELM_REPO) $(HELM_REPO_URL)
-	helm repo update
-	@echo "Repository Helm aggiunta."
+## Installazione
 
-# Installazione di Harbor
-.PHONY: install-harbor
-install-harbor: add-helm-repo
-	@echo "Installazione di Harbor..."
-	helm install harbor $(HELM_REPO)/harbor --namespace $(NAMESPACE)
-	@echo "Harbor installato nel namespace $(NAMESPACE)."
+1. Apri il menu principale (icona a forma di testa di toro).
+2. Vai su `apps` --> `charts` e cerca `harbor` nella barra di ricerca.
+3. Aggiungi il repository Helm se non è già stato aggiunto con il seguente comando:
+   ```sh
+   helm repo add harbor https://helm.goharbor.io
+   helm repo update
+   ```
+4. Clicca sul pulsante verde in alto a destra con scritto `installa`.
+5. Scegli il namespace in cui vuoi installare Harbor.
+6. Modifica il file YAML per cambiare le password, se necessario, altrimenti lascia le password di default.
+7. Elimina le regole relative al proxy come suggerito dall'immagine.
+8. Clicca su `installa` per continuare.
+   > **Nota:** Se il pod `harbor-core` non viene avviato, esegui un aggiornamento in caso di fallimento.
 
-# Modifica ingress
-.PHONY: modify-ingress
-modify-ingress:
-	@echo "Modifica ingress..."
-	kubectl get ingress -n $(NAMESPACE) -o yaml | sed 's/core\.harbor\.domain/$(INGRESS_DOMAIN)/g' | kubectl apply -f -
-	@echo "Ingress modificato con dominio $(INGRESS_DOMAIN)."
+## Modifica Ingress
 
-# Aggiunta certificati e configurazione daemon Docker
-.PHONY: configure-docker
-configure-docker:
-	@echo "Configurazione Docker..."
-	@echo "Scarica i certificati da Harbor e posizionali in $(DOCKER_CERT_DIR)/$(DOCKER_CERT_NAME)/"
-	@read -p "Premi invio dopo aver posizionato i certificati."
-	@mkdir -p $(DOCKER_CERT_DIR)
-	@echo '{ "insecure-registries": ["https://$(DOCKER_CERT_NAME)"] }' > $(DOCKER_CERT_DIR)/daemon.json
-	sudo systemctl restart docker
-	@echo "Docker configurato."
+1. Apri la tendina con tutte le opzioni.
+2. Vai su `Service Discovery` --> `Ingress`.
+3. Modifica l'ingress di Harbor, premendo i tre puntini accanto a `harbor` e poi `edit YAML`.
+4. Modifica il file sostituendo `core.harbor.domain` con `kube-node-2.kg.kireygroup.com`.
+5. In caso di errore di mancata versione, aggiungi il campo `resourceVersion` trovando il numero nel cluster o inserendo un numero simile a quello nell'immagine.
+6. Salva e visualizza il registry premendo sul link vicino alla voce `portal` nel menu degli ingress.
+   > **Nota:** Assicurati di utilizzare `https` e non `http` per accedere al registry, altrimenti non riuscirai ad accedere a causa di credenziali errate.
 
-# Login a Harbor
-.PHONY: login-harbor
-login-harbor:
-	@echo "Login a Harbor..."
-	docker login $(DOCKER_CERT_NAME)
-	@echo "Login effettuato."
+## Aggiunta Certificati e File Daemon per il Registro
 
-# Verifica degli errori e soluzioni
-.PHONY: check-errors
-check-errors:
-	@echo "Verifica errori comuni..."
-	@echo "Errore timeout: Verifica che la configurazione proxy sia stata eliminata nel file YAML di Harbor."
-	@echo "Errore x509: Verifica la correttezza del file daemon.json e che i certificati siano nella cartella corretta."
-	@echo "Verifica errori completata."
+1. Prima di accedere da terminale, installa i certificati nelle apposite cartelle.
+2. I certificati possono essere trovati dentro Harbor:
+   - Quando crei un progetto, premi su questo e in alto a destra apparirà la possibilità di scaricare il certificato.
+3. Inserisci il certificato nella cartella `/etc/docker/hostnamediharbor/` (dove `hostnamediharbor` è il nome host di Harbor, esclusa la parte `https`).
+4. Vai nella cartella `/etc/docker` e crea un file `daemon.json` con il seguente contenuto:
+   ```json
+   {
+     "insecure-registries": ["https://hostnameharbor.com"]
+   }
+   ```
+5. Salva il file e riavvia il demone Docker:
+   ```sh
+   sudo systemctl restart docker
+   ```
+6. Dopo il riavvio, effettua il login su Harbor:
+   ```sh
+   docker login hostnameharbor
+   ```
+7. Ora dovrebbe essere possibile eseguire i comandi `push` e `pull` delle immagini correttamente.
 
-# Target principale
-.PHONY: all
-all: prerequisites install-harbor modify-ingress configure-docker login-harbor check-errors
-	@echo "Installazione e configurazione completate."
+## Errori e Soluzioni
+
+- **Errore di timeout**: Verifica che la configurazione proxy sia stata eliminata nel file YAML di Harbor.
+- **Errore x509**: Controlla la correttezza del file `daemon.json` e assicurati che i certificati siano stati inseriti nella cartella corretta.
+
