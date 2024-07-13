@@ -21,7 +21,9 @@
 4. Clicca sul pulsante verde in alto a destra con scritto `installa`.
 5. Scegli il namespace in cui vuoi installare Harbor.
 6. Modifica il file YAML per cambiare le password, se necessario, altrimenti lascia le password di default.
-7. Elimina le regole relative al proxy come suggerito dall'immagine.
+7. Elimina le regole relative al proxy come suggerito dall'immagine.  
+
+![Registry da instllare](harb2a.PNG)
 8. Clicca su `installa` per continuare.
    > **Nota:** Se il pod `harbor-core` non viene avviato, esegui un aggiornamento in caso di fallimento.
 
